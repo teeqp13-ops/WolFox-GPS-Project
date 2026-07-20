@@ -1,0 +1,8 @@
+Package: com.byano.gps
+Name: byano GPS
+Depends: mobilesubstrate, preferenceloader
+Version: 1.0-1
+Architecture: iphoneos-arm
+Description: Mod Menu for GPS: IOS
+Maintainer: byano
+Author: byano
