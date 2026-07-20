@@ -32,9 +32,9 @@ jobs:
 
     - name: Setup Toolchain
       run: |
-        curl -LO https://github.com/theos/toolchain/releases/download/v2.0/linux-x86_64.tar.gz
+        curl -LO https://github.com/kabiroberai/toolchain-linux/releases/download/v2.1.0/toolchain-linux-x86_64.tar.gz
         mkdir -p ~/theos/toolchain
-        tar -xf linux-x86_64.tar.gz -C ~/theos/toolchain --strip-components=1
+        tar -xf toolchain-linux-x86_64.tar.gz -C ~/theos/toolchain --strip-components=1
         echo "PATH=~/theos/toolchain/bin:$PATH" >> $GITHUB_ENV
 
     - name: Build Package
