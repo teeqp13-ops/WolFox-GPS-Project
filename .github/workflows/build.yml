@@ -17,7 +17,7 @@ jobs:
         submodules: recursive
 
     - name: Build with Theos
-      uses: theos/theos-action@main
+      uses: theos/theos-action@v1
       with:
         theos_sdks: https://github.com/theos/sdks.git
         theos_sdk: iPhoneOS14.5.sdk
