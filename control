@@ -1,8 +1,8 @@
-Package: com.byano.gps
-Name: byano GPS
-Depends: mobilesubstrate, preferenceloader
-Version: 1.0-1
+Package: com.wolfox.gpsksa
+Name: WolFox GPS KSA
+Depends: mobilesubstrate, preferenceloader, com.opa334.altlist
+Version: 1.0.0
 Architecture: iphoneos-arm
-Description: Mod Menu for GPS: IOS
-Maintainer: byano
-Author: byano
+Description: Professional GPS Spoofing and Device Management Tool for iOS.
+Maintainer: WolFox
+Author: WolFox Team
