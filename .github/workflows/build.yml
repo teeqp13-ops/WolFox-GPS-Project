@@ -2,47 +2,79 @@ name: Build WolFox GPS
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
+
+concurrency:
+  group: wolfox-gps-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: macos-14
+    permissions:
+      contents: read
 
     steps:
-    - uses: actions/checkout@v4
-      with:
-        submodules: recursive
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
-    - name: Install Dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y build-essential git perl python3 libssl-dev libfl-dev zlib1g-dev zstd unzip curl
+      - name: Select Xcode
+        run: |
+          set -euo pipefail
+          sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+          xcodebuild -version
 
-    - name: Setup Theos
-      run: |
-        git clone --recursive https://github.com/theos/theos.git ~/theos
-        mkdir -p ~/theos/sdks
-        curl -L https://github.com/theos/sdks/archive/master.zip -o ~/sdks.zip
-        unzip -q ~/sdks.zip -d ~/sdks_temp
-        mv ~/sdks_temp/sdks-master/*.sdk ~/theos/sdks/
-        echo "THEOS=~/theos" >> $GITHUB_ENV
+      - name: Install dependencies
+        run: |
+          set -euo pipefail
+          brew install ldid dpkg xz || true
+          command -v ldid
+          command -v dpkg-deb
 
-    - name: Setup Toolchain
-      run: |
-        mkdir -p ~/theos/toolchain
-        curl -L https://github.com/theos/toolchain/releases/download/v2.0/linux-x86_64.tar.gz -o ~/toolchain.tar.gz
-        tar -xf ~/toolchain.tar.gz -C ~/theos/toolchain --strip-components=1
-        echo "PATH=~/theos/toolchain/bin:$PATH" >> $GITHUB_ENV
+      - name: Install Theos and SDKs
+        run: |
+          set -euo pipefail
+          export THEOS="$GITHUB_WORKSPACE/theos"
+          rm -rf "$THEOS"
+          git clone --recursive --depth=1 https://github.com/theos/theos.git "$THEOS"
+          rm -rf "$THEOS/sdks"
+          git clone --depth=1 https://github.com/theos/sdks.git "$THEOS/sdks"
+          test -f "$THEOS/makefiles/common.mk"
+          test -n "$(find "$THEOS/sdks" -maxdepth 1 -type d -name '*.sdk' -print -quit)"
 
-    - name: Build Package
-      run: |
-        export THEOS=~/theos
-        export PATH=~/theos/toolchain/bin:$PATH
-        make package FINALPACKAGE=1
-        
-    - name: Upload Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: WolFox-GPS-deb
-        path: packages/*.deb
+      - name: Build package
+        env:
+          THEOS: ${{ github.workspace }}/theos
+        run: |
+          set -euo pipefail
+          export PATH="/opt/homebrew/bin:/usr/local/bin:$THEOS/bin:$PATH"
+          mkdir -p artifacts
+          {
+            make clean
+            make package FINALPACKAGE=1 V=1
+          } 2>&1 | tee artifacts/build.log
+
+          find .theos -type f -name '*.dylib' -exec cp -v {} artifacts/ \;
+          find packages -type f -name '*.deb' -exec cp -v {} artifacts/ \;
+          test -n "$(find artifacts -maxdepth 1 -type f -name '*.dylib' -print -quit)"
+          test -n "$(find artifacts -maxdepth 1 -type f -name '*.deb' -print -quit)"
+          shasum -a 256 artifacts/*.dylib artifacts/*.deb > artifacts/SHA256SUMS.txt
+          ls -lah artifacts
+
+      - name: Upload build files
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: WolFox-GPS-build-${{ github.run_number }}
+          path: |
+            artifacts/*.dylib
+            artifacts/*.deb
+            artifacts/build.log
+            artifacts/SHA256SUMS.txt
+          if-no-files-found: warn
+          retention-days: 30
