@@ -22,9 +22,9 @@ jobs:
     - name: Setup Theos
       run: |
         git clone --recursive https://github.com/theos/theos.git ~/theos
-        curl -L https://github.com/theos/sdks/raw/master/iPhoneOS14.5.sdk.tar.xz -o ~/iPhoneOS14.5.sdk.tar.xz
+        curl -L https://github.com/theos/sdks/archive/master.tar.gz -o ~/sdks.tar.gz
         mkdir -p ~/theos/sdks
-        tar -xf ~/iPhoneOS14.5.sdk.tar.xz -C ~/theos/sdks
+        tar -xf ~/sdks.tar.gz -C ~/theos/sdks --strip-components=1
         echo "THEOS=~/theos" >> $GITHUB_ENV
 
     - name: Setup Toolchain
