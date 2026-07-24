@@ -17,40 +17,38 @@ YELLOW = \033[0;33m
 NC = \033[0m # No Color
 
 help:
-	@echo "$(BLUE)╔════════════════════════════════════════╗$(NC)"
-	@echo "$(BLUE)║  WolFox GPS Tweak - Build System       ║$(NC)"
-	@echo "$(BLUE)╚════════════════════════════════════════╝$(NC)"
+	@echo "WolFox GPS Tweak - Build System"
 	@echo ""
-	@echo "$(YELLOW)Available targets:$(NC)"
-	@echo "  $(GREEN)make build$(NC)      - بناء الـ Tweak"
-	@echo "  $(GREEN)make package$(NC)    - إنشاء حزمة deb"
-	@echo "  $(GREEN)make install$(NC)    - تثبيت على الجهاز"
-	@echo "  $(GREEN)make clean$(NC)      - حذف ملفات البناء"
-	@echo "  $(GREEN)make help$(NC)       - عرض هذه الرسالة"
+	@echo "Available targets:"
+	@echo "  make build      - بناء الـ Tweak"
+	@echo "  make package    - إنشاء حزمة deb"
+	@echo "  make install    - تثبيت على الجهاز"
+	@echo "  make clean      - حذف ملفات البناء"
+	@echo "  make help       - عرض هذه الرسالة"
 	@echo ""
 
 build:
-	@echo "$(BLUE)[*] Building $(PROJECT_NAME) v$(VERSION)...$(NC)"
+	@echo "[*] Building $(PROJECT_NAME) v$(VERSION)..."
 	@cd $(THEOS_PATH) && $(MAKE)
-	@echo "$(GREEN)[✓] Build completed!$(NC)"
+	@echo "[✓] Build completed!"
 
 package:
-	@echo "$(BLUE)[*] Creating deb package...$(NC)"
+	@echo "[*] Creating deb package..."
 	@cd $(THEOS_PATH) && $(MAKE) package
-	@echo "$(GREEN)[✓] Package created!$(NC)"
+	@echo "[✓] Package created!"
 
 install:
-	@echo "$(BLUE)[*] Installing on device...$(NC)"
+	@echo "[*] Installing on device..."
 	@cd $(THEOS_PATH) && $(MAKE) install
-	@echo "$(GREEN)[✓] Installation completed!$(NC)"
+	@echo "[✓] Installation completed!"
 
 clean:
-	@echo "$(BLUE)[*] Cleaning build files...$(NC)"
+	@echo "[*] Cleaning build files..."
 	@if [ -d "$(THEOS_PATH)" ] && [ -f "$(THEOS_PATH)/Makefile" ]; then \
 		cd $(THEOS_PATH) && $(MAKE) clean || true; \
 	fi
 	@rm -rf artifacts/ .theos/ _/ packages/
-	@echo "$(GREEN)[✓] Cleaned!$(NC)"
+	@echo "[✓] Cleaned!"
 
 all: build package
-	@echo "$(GREEN)[✓] All done!$(NC)"
+	@echo "[✓] All done!"
