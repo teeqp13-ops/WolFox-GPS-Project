@@ -1,21 +1,12 @@
 .PHONY: all build package install clean
 
-# متغيرات المشروع
 PROJECT_NAME = WolFox GPS Tweak
 VERSION = 1.0.0
 PACKAGE_NAME = com.wolfox.gpstweak
 
-# المسارات
 THEOS_PATH = theos
 BACKEND_PATH = backend
 DOCS_PATH = docs
-
-# الألوان
-GREEN = \033[0;32m
-BLUE = \033[0;34m
-YELLOW = \033[0;33m
-NC = \033[0m # No Color
-
 
 build:
 	@echo "[*] Building $(PROJECT_NAME) v$(VERSION)..."
