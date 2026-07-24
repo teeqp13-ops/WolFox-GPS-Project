@@ -1,4 +1,4 @@
-.PHONY: all build package install clean help
+.PHONY: all build package install clean
 
 # متغيرات المشروع
 PROJECT_NAME = WolFox GPS Tweak
@@ -16,16 +16,6 @@ BLUE = \033[0;34m
 YELLOW = \033[0;33m
 NC = \033[0m # No Color
 
-help:
-	@echo "WolFox GPS Tweak - Build System"
-	@echo ""
-	@echo "Available targets:"
-	@echo "  make build      - بناء الـ Tweak"
-	@echo "  make package    - إنشاء حزمة deb"
-	@echo "  make install    - تثبيت على الجهاز"
-	@echo "  make clean      - حذف ملفات البناء"
-	@echo "  make help       - عرض هذه الرسالة"
-	@echo ""
 
 build:
 	@echo "[*] Building $(PROJECT_NAME) v$(VERSION)..."
