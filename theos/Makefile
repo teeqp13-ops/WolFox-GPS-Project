@@ -9,6 +9,4 @@ WolFoxGPS_FILES = Tweak.xm WFActivation.mm WFGPSPanel.mm ios/WFActivationViewCon
 WolFoxGPS_CFLAGS = -fobjc-arc
 WolFoxGPS_FRAMEWORKS = UIKit CoreLocation MapKit Security
 
-all::
-	@echo "THEOS_MAKE_PATH is $(THEOS_MAKE_PATH)"
 include $(THEOS_MAKE_PATH)/tweak.mk
