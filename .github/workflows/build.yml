@@ -44,9 +44,10 @@ jobs:
           THEOS: ${{ github.workspace }}/theos
         run: |
           set -euo pipefail
+          export THEOS="${{ github.workspace }}/theos"
           export PATH="/opt/homebrew/bin:/usr/local/bin:$THEOS/bin:$PATH"
           mkdir -p artifacts
-          cd theos && make package FINALPACKAGE=1 V=1 2>&1 | tee ../artifacts/build.log && cd ..
+          make package FINALPACKAGE=1 V=1 2>&1 | tee artifacts/build.log
           find .theos -type f -name '*.dylib' -exec cp -v {} artifacts/ \;
           find packages -type f -name '*.deb' -exec cp -v {} artifacts/ \;
           test -n "$(find artifacts -maxdepth 1 -type f -name '*.dylib' -print -quit)"
