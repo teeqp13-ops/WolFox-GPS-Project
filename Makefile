@@ -1,14 +1,53 @@
-ARCHS = arm64 arm64e
-TARGET := iphone:clang:latest:15.0
-INSTALL_TARGET_PROCESSES = SpringBoard
+.PHONY: all build package install clean help
 
-include $(THEOS)/makefiles/common.mk
+# متغيرات المشروع
+PROJECT_NAME = WolFox GPS Tweak
+VERSION = 1.0.0
+PACKAGE_NAME = com.wolfox.gpstweak
 
-LIBRARY_NAME = BYANO
+# المسارات
+THEOS_PATH = theos
+BACKEND_PATH = backend
+DOCS_PATH = docs
 
-BYANO_FILES = c.mm KSA.mm fishhook/fishhook.c
-BYANO_CFLAGS = -fobjc-arc -Wno-deprecated-declarations -Wno-unused-variable -Wno-unused-value -Wno-enum-conversion
-BYANO_CCFLAGS = -std=c++17 -fno-rtti -fno-exceptions
-BYANO_FRAMEWORKS = UIKit Foundation MetalKit Metal ModelIO Security QuartzCore CoreGraphics CoreText AudioToolbox AVFoundation Accelerate Photos MediaPlayer CoreAudio
+# الألوان
+GREEN = \033[0;32m
+BLUE = \033[0;34m
+YELLOW = \033[0;33m
+NC = \033[0m # No Color
 
-include $(THEOS_MAKE_PATH)/library.mk
+help:
+	@echo "$(BLUE)╔════════════════════════════════════════╗$(NC)"
+	@echo "$(BLUE)║  WolFox GPS Tweak - Build System       ║$(NC)"
+	@echo "$(BLUE)╚════════════════════════════════════════╝$(NC)"
+	@echo ""
+	@echo "$(YELLOW)Available targets:$(NC)"
+	@echo "  $(GREEN)make build$(NC)      - بناء الـ Tweak"
+	@echo "  $(GREEN)make package$(NC)    - إنشاء حزمة deb"
+	@echo "  $(GREEN)make install$(NC)    - تثبيت على الجهاز"
+	@echo "  $(GREEN)make clean$(NC)      - حذف ملفات البناء"
+	@echo "  $(GREEN)make help$(NC)       - عرض هذه الرسالة"
+	@echo ""
+
+build:
+	@echo "$(BLUE)[*] Building $(PROJECT_NAME) v$(VERSION)...$(NC)"
+	@cd $(THEOS_PATH) && make
+	@echo "$(GREEN)[✓] Build completed!$(NC)"
+
+package:
+	@echo "$(BLUE)[*] Creating deb package...$(NC)"
+	@cd $(THEOS_PATH) && make package
+	@echo "$(GREEN)[✓] Package created!$(NC)"
+
+install:
+	@echo "$(BLUE)[*] Installing on device...$(NC)"
+	@cd $(THEOS_PATH) && make install
+	@echo "$(GREEN)[✓] Installation completed!$(NC)"
+
+clean:
+	@echo "$(BLUE)[*] Cleaning build files...$(NC)"
+	@cd $(THEOS_PATH) && make clean
+	@echo "$(GREEN)[✓] Cleaned!$(NC)"
+
+all: build package
+	@echo "$(GREEN)[✓] All done!$(NC)"

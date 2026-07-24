@@ -1,0 +1,9 @@
+Package: com.wolfox.gpstweak
+Name: WolFox GPS
+Version: 1.0
+Architecture: iphoneos-arm
+Description: محاكاة موقع GPS على مستوى النظام مع بوابة تفعيل مرتبطة بسيرفر WolFox
+Maintainer: WolFox
+Author: Khalid Alzubaidi (WolFox)
+Section: Tweaks
+Depends: mobilesubstrate, preferenceloader
