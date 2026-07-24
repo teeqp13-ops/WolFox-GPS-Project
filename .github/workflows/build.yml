@@ -54,7 +54,7 @@ jobs:
           set -euo pipefail
           export PATH="/opt/homebrew/bin:/usr/local/bin:$THEOS/bin:$PATH"
           mkdir -p artifacts
-          cd theos && make package FINALPACKAGE=1 V=1 2>&1 | tee ../artifacts/build.log && cd ..
+          cd theos && make THEOS="$THEOS" package FINALPACKAGE=1 V=1 2>&1 | tee ../artifacts/build.log && cd ..
 
           find .theos -type f -name '*.dylib' -exec cp -v {} artifacts/ \;
           find packages -type f -name '*.deb' -exec cp -v {} artifacts/ \;
