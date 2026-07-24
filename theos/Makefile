@@ -12,5 +12,8 @@ WolFoxGPS_FRAMEWORKS = UIKit CoreLocation MapKit Security
 
 include $(THEOS_MAKE_PATH)/tweak.mk
 
+clean::
+	rm -rf .theos _ .DS_Store *.log WolFoxGPS.dylib WolFoxGPS.plist
+
 after-install::
 	install.exec "killall -9 SpringBoard"
