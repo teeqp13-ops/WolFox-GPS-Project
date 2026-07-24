@@ -32,7 +32,7 @@ jobs:
       - name: Install Theos and SDKs
         run: |
           set -euo pipefail
-          echo "THEOS=$GITHUB_WORKSPACE/theos" >> $GITHUB_ENV
+          export THEOS="$GITHUB_WORKSPACE/theos"
 
           git clone --recursive --depth=1 https://github.com/theos/theos.git "$THEOS"
 
@@ -44,7 +44,7 @@ jobs:
           THEOS: ${{ github.workspace }}/theos
         run: |
           set -euo pipefail
-          echo "PATH=/opt/homebrew/bin:/usr/local/bin:$THEOS/bin:$PATH" >> $GITHUB_ENV
+          export PATH="/opt/homebrew/bin:/usr/local/bin:$THEOS/bin:$PATH"
           mkdir -p artifacts
           make -C theos package FINALPACKAGE=1 V=1 2>&1 | tee artifacts/build.log
           find .theos -type f -name '*.dylib' -exec cp -v {} artifacts/ \;
