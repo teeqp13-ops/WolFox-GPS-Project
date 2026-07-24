@@ -34,7 +34,7 @@ build:
 
 package:
 	@echo "[*] Creating deb package..."
-	@cd $(THEOS_PATH) && $(MAKE) package
+	@cd $(THEOS_PATH) && make package
 	@echo "[✓] Package created!"
 
 install:
