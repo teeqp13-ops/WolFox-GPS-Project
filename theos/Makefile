@@ -11,5 +11,6 @@ WolFoxGPS_FRAMEWORKS = UIKit CoreLocation MapKit Security
 
 include $(THEOS_MAKE_PATH)/tweak.mk
 
-package::
+
+package:
 	$(THEOS_MAKE_PATH)/tweak.mk package
