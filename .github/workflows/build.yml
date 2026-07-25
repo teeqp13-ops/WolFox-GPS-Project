@@ -1,68 +1,43 @@
-name: Build WolFox GPS
+name: Build HoGo Dylib
+
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
-  workflow_dispatch:
-concurrency:
-  group: wolfox-gps-${{ github.ref }}
-  cancel-in-progress: true
+  workflow_dispatch: # يسمح لك بتشغيل البناء يدوياً بضغطة زر
+
 jobs:
   build:
-    runs-on: macos-14
-    permissions:
-      contents: read
+    runs-on: macos-latest
+    
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Theos
+        run: |
+          bash -c "$(curl -fsSL https://raw.githubusercontent.com/theos/theos/master/bin/install-theos)"
+          echo "THEOS=~/theos" >> $GITHUB_ENV
+          echo "~/theos/bin" >> $GITHUB_PATH
+
+      - name: Build Dylib
+        run: |
+          # إنشاء ملفات المشروع تلقائياً
+          echo "include \$(THEOS)/makefiles/common.make
+          TWEAK_NAME = HoGo_License
+          HoGo_License_FILES = HoGo_License_Bypass.m
+          HoGo_License_CFLAGS = -fobjc-arc
+          include \$(THEOS_MAKE_PATH)/tweak.make" > Makefile
+          
+          echo "Package: com.hogo.license
+          Name: HoGo License Bypass
+          Depends: mobilesubstrate
+          Version: 1.0.0
+          Architecture: iphoneos-arm
+          Description: HoGo License System for iOS
+          Maintainer: HoGo" > control
+          
+          make package FINALPACKAGE=1
+
+      - name: Upload Result
+        uses: actions/upload-artifact@v3
         with:
-          submodules: recursive
-      - name: Select Xcode
-        run: |
-          set -euo pipefail
-          sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
-          xcodebuild -version
-      - name: Install dependencies
-        run: |
-          set -euo pipefail
-          brew install ldid dpkg xz || true
-          command -v ldid
-          command -v dpkg-deb
-      - name: Install Theos and SDKs
-        run: |
-          set -euo pipefail
-          export THEOS="$GITHUB_WORKSPACE/theos"
-          rm -rf "$THEOS"
-          git clone --recursive --depth=1 https://github.com/theos/theos.git "$THEOS"
-          rm -rf "$THEOS/sdks"
-          git clone --depth=1 https://github.com/theos/sdks.git "$THEOS/sdks"
-          test -f "$THEOS/makefiles/common.mk"
-          test -n "$(find "$THEOS/sdks" -maxdepth 1 -type d -name '.sdk' -print -quit)"
-      - name: Build package
-        env:
-          THEOS: ${{ github.workspace }}/theos
-        run: |
-          set -euo pipefail
-          export PATH="/opt/homebrew/bin:/usr/local/bin:$THEOS/bin:$PATH"
-          mkdir -p artifacts
-          make -C theos package FINALPACKAGE=1 V=1 2>&1 | tee artifacts/build.log
-          find .theos -type f -name '*.dylib' -exec cp -v {} artifacts/ \;
-          find packages -type f -name '*.deb' -exec cp -v {} artifacts/ \;
-          test -n "$(find artifacts -maxdepth 1 -type f -name '*.dylib' -print -quit)"
-          test -n "$(find artifacts -maxdepth 1 -type f -name '*.deb' -print -quit)"
-          shasum -a 256 artifacts/*.dylib artifacts/*.deb > artifacts/SHA256SUMS.txt
-          ls -lah artifacts
-      - name: Upload build files
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: WolFox-GPS-build-${{ github.run_number }}
-          path: |
-            artifacts/*.dylib
-            artifacts/*.deb
-            artifacts/build.log
-            artifacts/SHA256SUMS.txt
-          if-no-files-found: warn
-          retention-days: 30
-# Manual rebuild trigger: 2026-07-20
+          name: HoGo_Dylib
+          path: packages/*.deb
