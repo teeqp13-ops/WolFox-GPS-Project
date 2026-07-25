@@ -26,6 +26,7 @@ static UIColor *WFDanger(void) { return [UIColor colorWithRed:0xff/255.0 green:0
 @property (nonatomic, strong) UIView *activationView;
 @property (nonatomic, strong) UITextField *codeField;
 @property (nonatomic, strong) UILabel *actStatusLabel;
+@property (nonatomic, strong) UIButton *activateButton;
 
 // حالة 2: المميزات
 @property (nonatomic, strong) UIView *featuresView;
@@ -248,19 +249,42 @@ static UIColor *WFDanger(void) { return [UIColor colorWithRed:0xff/255.0 green:0
     self.codeField.layer.borderWidth = 1;
     self.codeField.layer.borderColor = [[UIColor whiteColor] colorWithAlphaComponent:0.08].CGColor;
     self.codeField.autocapitalizationType = UITextAutocapitalizationTypeAllCharacters;
+    self.codeField.autocorrectionType = UITextAutocorrectionTypeNo;
+    self.codeField.returnKeyType = UIReturnKeyDone;
     self.codeField.delegate = self;
     self.codeField.translatesAutoresizingMaskIntoConstraints = NO;
+
+    UIToolbar *toolbar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, 0, CGRectGetWidth([UIScreen mainScreen].bounds), 44)];
+    toolbar.barTintColor = WFPanelC();
+    toolbar.translucent = NO;
+    toolbar.semanticContentAttribute = UISemanticContentAttributeForceRightToLeft;
+
+    UIBarButtonItem *backButton = [[UIBarButtonItem alloc] initWithTitle:@"← رجوع"
+                                                                   style:UIBarButtonItemStylePlain
+                                                                  target:self
+                                                                  action:@selector(dismissKeyboard)];
+    backButton.tintColor = WFMuted();
+    UIBarButtonItem *flexibleSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace
+                                                                                  target:nil
+                                                                                  action:nil];
+    UIBarButtonItem *confirmButton = [[UIBarButtonItem alloc] initWithTitle:@"✓ تأكيد"
+                                                                      style:UIBarButtonItemStylePlain
+                                                                     target:self
+                                                                     action:@selector(activateTapped)];
+    confirmButton.tintColor = WFGold();
+    toolbar.items = @[backButton, flexibleSpace, confirmButton];
+    self.codeField.inputAccessoryView = toolbar;
     [card addSubview:self.codeField];
 
-    UIButton *activateBtn = [UIButton buttonWithType:UIButtonTypeSystem];
-    [activateBtn setTitle:@"تفعيل" forState:UIControlStateNormal];
-    [activateBtn setTitleColor:WFNavy() forState:UIControlStateNormal];
-    activateBtn.titleLabel.font = [UIFont boldSystemFontOfSize:14];
-    activateBtn.backgroundColor = WFGold();
-    activateBtn.layer.cornerRadius = 12;
-    activateBtn.translatesAutoresizingMaskIntoConstraints = NO;
-    [activateBtn addTarget:self action:@selector(activateTapped) forControlEvents:UIControlEventTouchUpInside];
-    [card addSubview:activateBtn];
+    self.activateButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    [self.activateButton setTitle:@"تفعيل" forState:UIControlStateNormal];
+    [self.activateButton setTitleColor:WFNavy() forState:UIControlStateNormal];
+    self.activateButton.titleLabel.font = [UIFont boldSystemFontOfSize:14];
+    self.activateButton.backgroundColor = WFGold();
+    self.activateButton.layer.cornerRadius = 12;
+    self.activateButton.translatesAutoresizingMaskIntoConstraints = NO;
+    [self.activateButton addTarget:self action:@selector(activateTapped) forControlEvents:UIControlEventTouchUpInside];
+    [card addSubview:self.activateButton];
 
     self.actStatusLabel = [[UILabel alloc] init];
     self.actStatusLabel.font = [UIFont boldSystemFontOfSize:12];
@@ -294,11 +318,11 @@ static UIColor *WFDanger(void) { return [UIColor colorWithRed:0xff/255.0 green:0
         [self.codeField.trailingAnchor constraintEqualToAnchor:card.trailingAnchor constant:-18],
         [self.codeField.heightAnchor constraintEqualToConstant:48],
 
-        [activateBtn.topAnchor constraintEqualToAnchor:self.codeField.bottomAnchor constant:14],
-        [activateBtn.leadingAnchor constraintEqualToAnchor:card.leadingAnchor constant:18],
-        [activateBtn.trailingAnchor constraintEqualToAnchor:card.trailingAnchor constant:-18],
-        [activateBtn.heightAnchor constraintEqualToConstant:46],
-        [activateBtn.bottomAnchor constraintEqualToAnchor:card.bottomAnchor constant:-18],
+        [self.activateButton.topAnchor constraintEqualToAnchor:self.codeField.bottomAnchor constant:14],
+        [self.activateButton.leadingAnchor constraintEqualToAnchor:card.leadingAnchor constant:18],
+        [self.activateButton.trailingAnchor constraintEqualToAnchor:card.trailingAnchor constant:-18],
+        [self.activateButton.heightAnchor constraintEqualToConstant:46],
+        [self.activateButton.bottomAnchor constraintEqualToAnchor:card.bottomAnchor constant:-18],
 
         [self.actStatusLabel.topAnchor constraintEqualToAnchor:card.bottomAnchor constant:14],
         [self.actStatusLabel.leadingAnchor constraintEqualToAnchor:v.leadingAnchor constant:24],
@@ -315,15 +339,21 @@ static UIColor *WFDanger(void) { return [UIColor colorWithRed:0xff/255.0 green:0
     }
     self.actStatusLabel.text = @"جاري التحقق...";
     self.actStatusLabel.textColor = WFMuted();
+    self.activateButton.enabled = NO;
     [WFActivation activateWithCode:code completion:^(BOOL success, NSString *message) {
         self.actStatusLabel.text = message;
         self.actStatusLabel.textColor = success ? WFSuccess() : WFDanger();
+        self.activateButton.enabled = YES;
         if (success) {
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.4 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
                 [self refreshStateForActivation];
             });
         }
     }];
+}
+
+- (void)dismissKeyboard {
+    [self.codeField resignFirstResponder];
 }
 
 #pragma mark - حالة 2: شاشة المميزات
