@@ -5,6 +5,8 @@ error_reporting(E_ALL & ~E_DEPRECATED & ~E_NOTICE);
 
 define('DB_PATH', __DIR__ . '/database.sqlite');
 define('ADMIN_PASSWORD', getenv('WOLFOX_ADMIN_PASSWORD') ?: '');
+define('OPENAI_API_KEY', getenv('OPENAI_API_KEY') ?: '');
+define('OPENAI_MODEL', getenv('OPENAI_MODEL') ?: 'gpt-5.6-sol');
 
 define('CODE_LENGTH', 8);
 define('CODE_CHARS', 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789');
