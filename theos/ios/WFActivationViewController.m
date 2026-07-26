@@ -9,7 +9,6 @@
 
 // ====== إعدادات الاتصال - عدّل هذي القيم حسب السيرفر ======
 static NSString * const kWFApiURL       = @"https://activate.p3nd.fun/api.php"; // غيّر السب دومين حسب ما تربطه فعلياً
-static NSString * const kWFHMACSecret   = @"wolfox_act_9f3k2m8x_change_me";     // نفس HMAC_SECRET في config.php بالسيرفر
 
 // ====== مفاتيح التخزين المحلي ======
 static NSString * const kWFDefaultsActivatedKey = @"WF_isActivated";
@@ -265,7 +264,7 @@ static UIColor *WFDangerColor(void) { return [UIColor colorWithRed:0xff/255.0 gr
     [UIView animateWithDuration:0.25 animations:^{ self.statusLabel.alpha = 1.0; }];
 }
 
-#pragma mark - Networking (HMAC-signed activation call)
+#pragma mark - Networking (activation call)
 
 - (void)callActivationAPIWithCode:(NSString *)code
                           deviceId:(NSString *)deviceId
@@ -315,7 +314,6 @@ static UIColor *WFDangerColor(void) { return [UIColor colorWithRed:0xff/255.0 gr
     if ([errCode isEqualToString:@"used_on_other_device"]) return @"هذا الكود مستخدم على جهاز آخر";
     if ([errCode isEqualToString:@"code_revoked"]) return @"تم إيقاف هذا الكود";
     if ([errCode isEqualToString:@"code_expired"]) return @"انتهت صلاحية هذا الكود";
-    if ([errCode isEqualToString:@"bad_signature"]) return @"خطأ في التحقق الأمني";
     if ([errCode isEqualToString:@"missing_params"]) return @"بيانات ناقصة";
     return @"حدث خطأ غير متوقع، حاول لاحقاً";
 }
