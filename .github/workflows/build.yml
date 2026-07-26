@@ -28,7 +28,7 @@ jobs:
           test -f theos/WFActivation.mm
       - name: Prevent committed runtime secrets
         run: |
-          ! grep -RInE "define\('ADMIN_PASSWORD',[[:space:]]*'[^']+'|HMAC_SECRET[[:space:]]*@" backend theos
+          ! grep -RInE "define\\('(ADMIN_PASSWORD|HMAC_SECRET)',[[:space:]]*'[^']+'|HMAC_SECRET[[:space:]]*@" backend theos
       - name: Explain build boundary
         run: |
           echo "Theos packaging is intentionally performed only in a compatible macOS/Theos environment."
