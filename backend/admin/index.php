@@ -3,8 +3,8 @@ session_start();
 require __DIR__ . '/../config.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $pass = isset($_POST['password']) ? $_POST['password'] : '';
-    if (ADMIN_PASSWORD !== '' && hash_equals(ADMIN_PASSWORD, $pass)) {
+    $pass = isset($_POST['password']) && is_string($_POST['password']) ? $_POST['password'] : '';
+    if (ADMIN_PASSWORD !== '' && is_string($pass) && hash_equals(ADMIN_PASSWORD, $pass)) {
         $_SESSION['wf_admin'] = true;
         header('Location: dashboard.php');
         exit;
