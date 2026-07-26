@@ -1,43 +1,34 @@
-name: Build HoGo Dylib
+name: Validate WolFox GPS
 
 on:
-  workflow_dispatch: # يسمح لك بتشغيل البناء يدوياً بضغطة زر
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
 
 jobs:
-  build:
-    runs-on: macos-latest
-    
+  validate:
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up Theos
+      - uses: actions/checkout@v4
+      - name: Validate PHP syntax
         run: |
-          bash -c "$(curl -fsSL https://raw.githubusercontent.com/theos/theos/master/bin/install-theos)"
-          echo "THEOS=~/theos" >> $GITHUB_ENV
-          echo "~/theos/bin" >> $GITHUB_PATH
-
-      - name: Build Dylib
+          php -l backend/config.php
+          php -l backend/api.php
+          php -l backend/api/activate.php
+          php -l backend/admin/assistant.php
+      - name: Validate project manifests
         run: |
-          # إنشاء ملفات المشروع تلقائياً
-          echo "include \$(THEOS)/makefiles/common.make
-          TWEAK_NAME = HoGo_License
-          HoGo_License_FILES = HoGo_License_Bypass.m
-          HoGo_License_CFLAGS = -fobjc-arc
-          include \$(THEOS_MAKE_PATH)/tweak.make" > Makefile
-          
-          echo "Package: com.hogo.license
-          Name: HoGo License Bypass
-          Depends: mobilesubstrate
-          Version: 1.0.0
-          Architecture: iphoneos-arm
-          Description: HoGo License System for iOS
-          Maintainer: HoGo" > control
-          
-          make package FINALPACKAGE=1
-
-      - name: Upload Result
-        uses: actions/upload-artifact@v3
-        with:
-          name: HoGo_Dylib
-          path: packages/*.deb
+          test -f theos/Makefile
+          test -f theos/control
+          test -f theos/Tweak.xm
+          test -f theos/WFActivation.mm
+      - name: Prevent committed runtime secrets
+        run: |
+          ! grep -RInE "define\\('(ADMIN_PASSWORD|HMAC_SECRET)',[[:space:]]*'[^']+'|HMAC_SECRET[[:space:]]*@" backend theos
+      - name: Explain build boundary
+        run: |
+          echo "Theos packaging is intentionally performed only in a compatible macOS/Theos environment."

@@ -80,6 +80,7 @@ $expired = $pdo->query("SELECT COUNT(*) c FROM codes WHERE status='expired'")->f
   .brand { display:flex; align-items:center; gap:10px; font-weight:800; font-size:18px; }
   .brand i { color:#c9a227; }
   .brand span { color:#c9a227; }
+  .topbar-actions { display:flex; gap:8px; align-items:center; }
   .logout-btn { background:transparent; border:1px solid rgba(255,255,255,.15); color:#9aa3b8; padding:8px 14px; border-radius:8px; cursor:pointer; font-family:'Cairo'; }
   .logout-btn:hover { border-color:#c9a227; color:#c9a227; }
   .container { max-width:1100px; margin:0 auto; padding:28px 20px; }
@@ -137,9 +138,12 @@ $expired = $pdo->query("SELECT COUNT(*) c FROM codes WHERE status='expired'")->f
 <body>
 <div class="topbar">
   <div class="brand"><i class="fa-solid fa-shield-halved"></i> Wol<span>Fox</span> Activation</div>
-  <form method="POST"><input type="hidden" name="action" value="logout">
-    <button class="logout-btn" type="submit"><i class="fa-solid fa-right-from-bracket"></i> خروج</button>
-  </form>
+  <div class="topbar-actions">
+    <a class="logout-btn" href="assistant.php"><i class="fa-solid fa-wand-magic-sparkles"></i> مساعد المشروع</a>
+    <form method="POST"><input type="hidden" name="action" value="logout">
+      <button class="logout-btn" type="submit"><i class="fa-solid fa-right-from-bracket"></i> خروج</button>
+    </form>
+  </div>
 </div>
 
 <div class="container">

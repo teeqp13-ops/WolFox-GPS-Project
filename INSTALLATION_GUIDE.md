@@ -54,9 +54,10 @@ chmod 755 /var/www/activate.example.com/backend/
 # 3. عدّل config.php
 nano /var/www/activate.example.com/backend/config.php
 # غيّر:
-# - HMAC_SECRET (مفتاح سري قوي)
-# - API_URL (رابط السيرفر)
-# - DATABASE_PATH (مسار قاعدة البيانات)
+# اضبط متغيرات البيئة في الاستضافة:
+# - WOLFOX_ADMIN_PASSWORD (كلمة مرور لوحة الإدارة)
+# - OPENAI_API_KEY (اختياري لصفحة المساعد)
+# - لا تضف أي مفتاح سري لتطبيق iOS
 ```
 
 ### الخطوة 2: بناء الـ Tweak (على Mac)
@@ -125,7 +126,7 @@ ssh root@device "dpkg -i /tmp/com.wolfox.gpstweak_1.0_iphoneos-arm64.deb && kill
 1. اذهب إلى لوحة التحكم:
    https://activate.example.com/admin/
 
-2. كلمة المرور الافتراضية: Khalid1010
+2. استخدم قيمة WOLFOX_ADMIN_PASSWORD التي ضبطتها في بيئة الخادم
 
 3. اضغط "توليد أكواد"
 
@@ -174,10 +175,8 @@ ping activate.example.com
 # تحقق من السيرفر
 curl https://activate.example.com/api.php
 
-# تحقق من HMAC_SECRET
-# تأكد أنه متطابق في:
-# - backend/config.php
-# - WFConfig.h في الـ Tweak
+# تحقق من WOLFOX_ADMIN_PASSWORD في إعدادات بيئة الخادم
+# لا تستخدم مفاتيح HMAC مشتركة داخل التطبيق
 ```
 
 ### المشكلة: الموقع لا يتغير
@@ -235,9 +234,9 @@ CREATE TABLE codes (
 
 ## 🔐 الأمان
 
-- ✅ جميع الطلبات موقّعة بـ HMAC-SHA256
 - ✅ تشفير SSL/TLS للاتصالات
-- ✅ التحقق من توقيع الاستجابات
+- ✅ لا توجد أسرار مشتركة مضمنة في العميل
+- ✅ التحقق من مدخلات التفعيل على الخادم
 - ✅ حماية من هجمات التكرار
 
 ---

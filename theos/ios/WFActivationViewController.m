@@ -6,11 +6,9 @@
 //
 
 #import "WFActivationViewController.h"
-#import <CommonCrypto/CommonHMAC.h>
 
 // ====== إعدادات الاتصال - عدّل هذي القيم حسب السيرفر ======
 static NSString * const kWFApiURL       = @"https://activate.p3nd.fun/api.php"; // غيّر السب دومين حسب ما تربطه فعلياً
-static NSString * const kWFHMACSecret   = @"wolfox_act_9f3k2m8x_change_me";     // نفس HMAC_SECRET في config.php بالسيرفر
 
 // ====== مفاتيح التخزين المحلي ======
 static NSString * const kWFDefaultsActivatedKey = @"WF_isActivated";
@@ -266,21 +264,17 @@ static UIColor *WFDangerColor(void) { return [UIColor colorWithRed:0xff/255.0 gr
     [UIView animateWithDuration:0.25 animations:^{ self.statusLabel.alpha = 1.0; }];
 }
 
-#pragma mark - Networking (HMAC-signed activation call)
+#pragma mark - Networking (activation call)
 
 - (void)callActivationAPIWithCode:(NSString *)code
                           deviceId:(NSString *)deviceId
                         completion:(void (^)(BOOL success, NSString *message))completion {
-
-    NSString *reqSig = [self hmacSHA256HexForString:[NSString stringWithFormat:@"%@|%@", code, deviceId]
-                                                key:kWFHMACSecret];
     NSString *deviceModel = [self deviceModelString];
 
-    NSString *bodyString = [NSString stringWithFormat:@"code=%@&device_id=%@&device_model=%@&req_sig=%@",
+    NSString *bodyString = [NSString stringWithFormat:@"code=%@&device_id=%@&device_model=%@",
                              [self urlEncode:code],
                              [self urlEncode:deviceId],
-                             [self urlEncode:deviceModel],
-                             [self urlEncode:reqSig]];
+                             [self urlEncode:deviceModel]];
 
     NSURL *url = [NSURL URLWithString:kWFApiURL];
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
@@ -306,17 +300,6 @@ static UIColor *WFDangerColor(void) { return [UIColor colorWithRed:0xff/255.0 gr
 
         BOOL success = [json[@"success"] boolValue];
         if (success) {
-            // تحقق اختياري من توقيع الرد لمنع التلاعب بالاستجابة
-            NSString *timestamp = [NSString stringWithFormat:@"%@", json[@"timestamp"]];
-            NSString *status = json[@"status"] ?: @"active";
-            NSString *expectedSig = [self hmacSHA256HexForString:
-                [NSString stringWithFormat:@"%@|%@|%@|%@", code, deviceId, timestamp, status]
-                key:kWFHMACSecret];
-            NSString *serverSig = json[@"signature"] ?: @"";
-            if (![expectedSig isEqualToString:serverSig]) {
-                completion(NO, @"فشل التحقق من صحة الاستجابة");
-                return;
-            }
             completion(YES, @"تم تفعيل الجهاز بنجاح");
         } else {
             NSString *errCode = json[@"error"] ?: @"unknown";
@@ -331,7 +314,6 @@ static UIColor *WFDangerColor(void) { return [UIColor colorWithRed:0xff/255.0 gr
     if ([errCode isEqualToString:@"used_on_other_device"]) return @"هذا الكود مستخدم على جهاز آخر";
     if ([errCode isEqualToString:@"code_revoked"]) return @"تم إيقاف هذا الكود";
     if ([errCode isEqualToString:@"code_expired"]) return @"انتهت صلاحية هذا الكود";
-    if ([errCode isEqualToString:@"bad_signature"]) return @"خطأ في التحقق الأمني";
     if ([errCode isEqualToString:@"missing_params"]) return @"بيانات ناقصة";
     return @"حدث خطأ غير متوقع، حاول لاحقاً";
 }
@@ -358,18 +340,6 @@ static UIColor *WFDangerColor(void) { return [UIColor colorWithRed:0xff/255.0 gr
 - (NSString *)urlEncode:(NSString *)string {
     NSCharacterSet *allowed = [NSCharacterSet URLQueryAllowedCharacterSet];
     return [string stringByAddingPercentEncodingWithAllowedCharacters:allowed] ?: @"";
-}
-
-- (NSString *)hmacSHA256HexForString:(NSString *)string key:(NSString *)key {
-    const char *cKey = [key cStringUsingEncoding:NSUTF8StringEncoding];
-    const char *cData = [string cStringUsingEncoding:NSUTF8StringEncoding];
-    unsigned char cHMAC[CC_SHA256_DIGEST_LENGTH];
-    CCHmac(kCCHmacAlgSHA256, cKey, strlen(cKey), cData, strlen(cData), cHMAC);
-    NSMutableString *hex = [NSMutableString stringWithCapacity:CC_SHA256_DIGEST_LENGTH * 2];
-    for (int i = 0; i < CC_SHA256_DIGEST_LENGTH; i++) {
-        [hex appendFormat:@"%02x", cHMAC[i]];
-    }
-    return hex;
 }
 
 #pragma mark - UITextFieldDelegate
