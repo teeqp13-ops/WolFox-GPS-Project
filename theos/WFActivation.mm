@@ -64,8 +64,13 @@ static NSString *WFDeviceId(void) {
 
 + (void)activateWithCode:(NSString *)code completion:(void (^)(BOOL, NSString *))completion {
     NSString *deviceId = WFDeviceId();
-    NSString *body = [NSString stringWithFormat:@"code=%@&device_id=%@",
-                       [self urlEncode:code], [self urlEncode:deviceId]];
+    NSString *deviceLabel = [UIDevice currentDevice].name ?: @"iPhone";
+    NSString *body = [NSString stringWithFormat:@"project_key=%@&code=%@&device_id=%@&device_label=%@&bundle_id=%@",
+                       [self urlEncode:WF_PROJECT_KEY],
+                       [self urlEncode:code],
+                       [self urlEncode:deviceId],
+                       [self urlEncode:deviceLabel],
+                       [self urlEncode:WF_BUNDLE_ID]];
 
     NSMutableURLRequest *req = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:WF_API_URL]];
     req.HTTPMethod = @"POST";
@@ -99,9 +104,12 @@ static NSString *WFDeviceId(void) {
 
 + (NSString *)localizedError:(NSString *)code {
     if ([code isEqualToString:@"invalid_code"]) return @"الكود غير صحيح";
-    if ([code isEqualToString:@"used_on_other_device"]) return @"مستخدم على جهاز آخر";
-    if ([code isEqualToString:@"code_revoked"]) return @"تم إيقاف هذا الكود";
-    if ([code isEqualToString:@"code_expired"]) return @"انتهت صلاحية الكود";
+    if ([code isEqualToString:@"invalid_project"]) return @"مشروع WolFox GPS غير مضاف أو غير مفعّل في اللوحة";
+    if ([code isEqualToString:@"device_limit_reached"]) return @"تم الوصول إلى حد الأجهزة المسموح";
+    if ([code isEqualToString:@"disabled"] || [code isEqualToString:@"suspended"]) return @"تم إيقاف هذا الكود";
+    if ([code isEqualToString:@"expired"]) return @"انتهت صلاحية الكود";
+    if ([code isEqualToString:@"maintenance"]) return @"الخدمة تحت الصيانة";
+    if ([code isEqualToString:@"missing_fields"]) return @"بيانات التفعيل ناقصة";
     return @"حدث خطأ غير متوقع";
 }
 
