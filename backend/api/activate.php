@@ -45,7 +45,6 @@ if ($row['status'] === 'unused') {
         'code'      => $code,
         'device_id' => $device_id,
         'timestamp' => $timestamp,
-        'signature' => $sig
     ));
 } elseif ($row['status'] === 'active') {
     if ($row['device_id'] === $device_id) {
@@ -60,7 +59,6 @@ if ($row['status'] === 'unused') {
             'code'      => $code,
             'device_id' => $device_id,
             'timestamp' => $timestamp,
-            'signature' => $sig
         ));
     } else {
         json_out(array('success' => false, 'error' => 'used_on_other_device'), 409);
