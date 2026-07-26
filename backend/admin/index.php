@@ -4,7 +4,7 @@ require __DIR__ . '/../config.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $pass = isset($_POST['password']) ? $_POST['password'] : '';
-    if ($pass === ADMIN_PASSWORD) {
+    if (ADMIN_PASSWORD !== '' && hash_equals(ADMIN_PASSWORD, $pass)) {
         $_SESSION['wf_admin'] = true;
         header('Location: dashboard.php');
         exit;
