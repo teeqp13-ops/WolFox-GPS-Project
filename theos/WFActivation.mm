@@ -5,18 +5,7 @@
 
 #import "WFActivation.h"
 #import "WFConfig.h"
-#import <CommonCrypto/CommonHMAC.h>
 #import <UIKit/UIKit.h>
-
-static NSString *WFHMACHex(NSString *string, NSString *key) {
-    const char *cKey = [key cStringUsingEncoding:NSUTF8StringEncoding];
-    const char *cData = [string cStringUsingEncoding:NSUTF8StringEncoding];
-    unsigned char cHMAC[CC_SHA256_DIGEST_LENGTH];
-    CCHmac(kCCHmacAlgSHA256, cKey, strlen(cKey), cData, strlen(cData), cHMAC);
-    NSMutableString *hex = [NSMutableString stringWithCapacity:CC_SHA256_DIGEST_LENGTH * 2];
-    for (int i = 0; i < CC_SHA256_DIGEST_LENGTH; i++) { [hex appendFormat:@"%02x", cHMAC[i]]; }
-    return hex;
-}
 
 static NSString *WFDeviceId(void) {
     NSMutableDictionary *prefs = [NSMutableDictionary dictionaryWithContentsOfFile:WF_PREFS_PATH] ?: [NSMutableDictionary dictionary];
@@ -75,10 +64,8 @@ static NSString *WFDeviceId(void) {
 
 + (void)activateWithCode:(NSString *)code completion:(void (^)(BOOL, NSString *))completion {
     NSString *deviceId = WFDeviceId();
-    NSString *reqSig = WFHMACHex([NSString stringWithFormat:@"%@|%@", code, deviceId], WF_HMAC_SECRET);
-
-    NSString *body = [NSString stringWithFormat:@"code=%@&device_id=%@&req_sig=%@",
-                       [self urlEncode:code], [self urlEncode:deviceId], [self urlEncode:reqSig]];
+    NSString *body = [NSString stringWithFormat:@"code=%@&device_id=%@",
+                       [self urlEncode:code], [self urlEncode:deviceId]];
 
     NSMutableURLRequest *req = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:WF_API_URL]];
     req.HTTPMethod = @"POST";
