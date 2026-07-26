@@ -19,6 +19,7 @@ jobs:
           php -l backend/config.php
           php -l backend/api.php
           php -l backend/api/activate.php
+          php -l backend/admin/assistant.php
       - name: Validate project manifests
         run: |
           test -f theos/Makefile
